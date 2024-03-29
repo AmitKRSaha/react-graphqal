@@ -1,23 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import github from "./db";
+import { useEffect, useState, useCallback } from "react";
 
 function App() {
+  const [login, setLogin] = useState("");
+
+  const fetchData = useCallback(() => {
+    const githubQuery = {
+      query: `
+      {
+        viewer {
+          name
+          login
+        }
+      }`,
+    };
+
+    fetch(github.baseURL, {
+      method: "POST",
+      headers: github.headers,
+      body: JSON.stringify(githubQuery),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setLogin(data.data.viewer.login);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App container mt-5">
+      <h1 className="txt-primary">
+        <i className="bi bi-diagram-2-fill"></i> Repos
+      </h1>
+      <p>{login}</p>
     </div>
   );
 }
